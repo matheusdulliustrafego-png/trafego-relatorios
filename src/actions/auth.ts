@@ -5,10 +5,11 @@ import { redirect } from "next/navigation";
 import { AUTH_COOKIE, createSessionToken } from "@/lib/auth";
 
 export async function login(formData: FormData) {
-  const password = String(formData.get("password") ?? "");
+  const password = String(formData.get("password") ?? "").trim();
   const next = String(formData.get("next") ?? "/");
+  const expected = (process.env.APP_PASSWORD ?? "").trim();
 
-  if (password !== process.env.APP_PASSWORD) {
+  if (!expected || password !== expected) {
     redirect(`/login?erro=1&next=${encodeURIComponent(next)}`);
   }
 
