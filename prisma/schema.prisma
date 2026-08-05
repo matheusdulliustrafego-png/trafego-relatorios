@@ -6,17 +6,26 @@ generator client {
   provider = "prisma-client-js"
 }
 
+model Cliente {
+  id        String   @id @default(cuid())
+  nome      String
+  slug      String   @unique
+  createdAt DateTime @default(now())
+  reports   Report[]
+}
+
 model Report {
-  id             String   @id @default(cuid())
-  cliente        String
-  campanha       String   @default("")
-  periodoInicio  DateTime
-  periodoFim     DateTime
-  investimento   Float
-  alcance        Int
-  impressoes     Int
-  cliques        Int
-  leads          Int
-  observacoes    String   @default("")
-  createdAt      DateTime @default(now())
+  id            String   @id @default(cuid())
+  cliente       Cliente  @relation(fields: [clienteId], references: [id])
+  clienteId     String
+  campanha      String   @default("")
+  periodoInicio DateTime
+  periodoFim    DateTime
+  investimento  Float
+  alcance       Int
+  impressoes    Int
+  cliques       Int
+  leads         Int
+  observacoes   String   @default("")
+  createdAt     DateTime @default(now())
 }

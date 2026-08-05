@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import { slugify } from "@/lib/slug";
 
 function toNumber(value: FormDataEntryValue | null): number {
   const n = Number(value);
@@ -9,19 +10,26 @@ function toNumber(value: FormDataEntryValue | null): number {
 }
 
 export async function createReport(formData: FormData) {
-  const cliente = String(formData.get("cliente") ?? "").trim();
+  const nomeCliente = String(formData.get("cliente") ?? "").trim();
   const campanha = String(formData.get("campanha") ?? "").trim();
   const periodoInicio = String(formData.get("periodoInicio") ?? "");
   const periodoFim = String(formData.get("periodoFim") ?? "");
   const observacoes = String(formData.get("observacoes") ?? "").trim();
 
-  if (!cliente || !periodoInicio || !periodoFim) {
+  if (!nomeCliente || !periodoInicio || !periodoFim) {
     throw new Error("Preencha ao menos cliente e período.");
   }
 
+  const slug = slugify(nomeCliente);
+  const cliente = await prisma.cliente.upsert({
+    where: { slug },
+    update: {},
+    create: { nome: nomeCliente, slug },
+  });
+
   const report = await prisma.report.create({
     data: {
-      cliente,
+      clienteId: cliente.id,
       campanha,
       periodoInicio: new Date(periodoInicio),
       periodoFim: new Date(periodoFim),

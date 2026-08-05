@@ -19,7 +19,7 @@ export default async function ReportPage({
 }) {
   const { id } = await params;
   const { criado } = await searchParams;
-  const report = await prisma.report.findUnique({ where: { id } });
+  const report = await prisma.report.findUnique({ where: { id }, include: { cliente: true } });
 
   if (!report) notFound();
 
@@ -51,7 +51,7 @@ export default async function ReportPage({
             Relatório de Performance
           </span>
           <h1 className="font-heading text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-            {report.cliente}
+            {report.cliente.nome}
           </h1>
           {report.campanha ? (
             <p className="font-sans text-white/50">{report.campanha}</p>
