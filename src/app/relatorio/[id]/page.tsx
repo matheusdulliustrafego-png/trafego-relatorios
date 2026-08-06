@@ -14,11 +14,12 @@ import {
 } from "@/lib/format";
 import { Reveal } from "@/components/reveal";
 import { StatCard } from "@/components/stat-card";
-import { FunnelBars } from "@/components/funnel-bars";
-import { EvolutionBars } from "@/components/evolution-bars";
+import { FunnelReal } from "@/components/funnel-real";
+import { EvolutionChart } from "@/components/evolution-chart";
 import { DeltaBadge } from "@/components/delta-badge";
 import { AnimatedCounter } from "@/components/animated-counter";
 import { CopyLinkBanner } from "@/components/copy-link-banner";
+import { LogoWatermark } from "@/components/logo-watermark";
 
 export const dynamic = "force-dynamic";
 
@@ -63,15 +64,24 @@ export default async function ReportPage({
   return (
     <main className="relative min-h-screen overflow-hidden bg-brand-black pb-24">
       <div
-        className="absolute -top-40 left-1/2 h-[520px] w-[820px] -translate-x-1/2 rounded-full bg-brand-silver/[0.07] blur-[140px]"
+        className="absolute -top-40 left-1/2 z-0 h-[520px] w-[820px] -translate-x-1/2 rounded-full bg-brand-silver/[0.07] blur-[140px]"
         aria-hidden="true"
       />
       <div
-        className="absolute inset-0 [background-image:linear-gradient(to_right,rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.03)_1px,transparent_1px)] [background-size:56px_56px] [mask-image:radial-gradient(ellipse_70%_50%_at_50%_0%,black_10%,transparent_75%)]"
+        className="absolute top-[420px] -left-40 z-0 h-[420px] w-[420px] rounded-full bg-brand-blue/[0.12] blur-[130px]"
         aria-hidden="true"
       />
+      <div
+        className="absolute top-[900px] -right-40 z-0 h-[420px] w-[420px] rounded-full bg-brand-pink/[0.1] blur-[130px]"
+        aria-hidden="true"
+      />
+      <div
+        className="absolute inset-0 z-0 [background-image:linear-gradient(to_right,rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.03)_1px,transparent_1px)] [background-size:56px_56px] [mask-image:radial-gradient(ellipse_70%_50%_at_50%_0%,black_10%,transparent_75%)]"
+        aria-hidden="true"
+      />
+      <LogoWatermark />
 
-      <div className="relative mx-auto flex w-full max-w-4xl flex-col gap-14 px-6 pt-16">
+      <div className="relative z-10 mx-auto flex w-full max-w-4xl flex-col gap-14 px-6 pt-16">
         {criado ? <CopyLinkBanner /> : null}
 
         <Reveal className="flex flex-col items-center gap-4 text-center">
@@ -173,18 +183,17 @@ export default async function ReportPage({
         ) : null}
 
         <Reveal delay={0.1}>
-          <div className="rounded-2xl border border-white/[0.08] bg-gradient-to-b from-white/[0.04] to-transparent p-6">
+          <div className="rounded-2xl border border-white/[0.08] bg-gradient-to-b from-white/[0.04] to-transparent p-6 sm:p-8">
             <h2 className="font-heading text-lg font-semibold text-white">Funil da campanha</h2>
             <p className="mt-1 font-sans text-sm text-white/50">
-              Do alcance até o resultado final.
+              Da pessoa alcançada até virar lead.
             </p>
-            <div className="mt-6">
-              <FunnelBars
+            <div className="mx-auto mt-12 max-w-sm">
+              <FunnelReal
                 steps={[
                   { label: "Alcance", value: report.alcance },
-                  { label: "Impressões", value: report.impressoes },
                   { label: "Cliques", value: report.cliques },
-                  { label: "Leads / Mensagens", value: report.leads },
+                  { label: "Leads", value: report.leads },
                 ]}
               />
             </div>
@@ -199,7 +208,7 @@ export default async function ReportPage({
                 Leads gerados em cada período de campanha.
               </p>
               <div className="mt-6">
-                <EvolutionBars periods={periodos} />
+                <EvolutionChart periods={periodos} />
               </div>
             </div>
           </Reveal>
