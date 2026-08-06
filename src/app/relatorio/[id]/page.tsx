@@ -1,10 +1,22 @@
 import { notFound } from "next/navigation";
-import { Wallet, Users, Eye, MousePointerClick, Percent, Target } from "lucide-react";
+import { Wallet, Users, Eye, MousePointerClick, Percent, Target, Coins, TrendingUp } from "lucide-react";
 import { prisma } from "@/lib/prisma";
-import { ctr, cpl, formatCurrency, formatDate, formatNumber } from "@/lib/format";
+import {
+  ctr,
+  cpl,
+  cpc,
+  cpm,
+  percentChange,
+  formatCurrency,
+  formatDate,
+  formatMonthShort,
+  formatNumber,
+} from "@/lib/format";
 import { Reveal } from "@/components/reveal";
 import { StatCard } from "@/components/stat-card";
 import { FunnelBars } from "@/components/funnel-bars";
+import { EvolutionBars } from "@/components/evolution-bars";
+import { DeltaBadge } from "@/components/delta-badge";
 import { AnimatedCounter } from "@/components/animated-counter";
 import { CopyLinkBanner } from "@/components/copy-link-banner";
 
@@ -25,7 +37,28 @@ export default async function ReportPage({
 
   const taxaCtr = ctr(report.cliques, report.impressoes);
   const custoLead = cpl(report.investimento, report.leads);
+  const custoClique = cpc(report.investimento, report.cliques);
+  const custoMil = cpm(report.investimento, report.impressoes);
   const whatsappLink = "https://wa.me/5551993133997?text=" + encodeURIComponent("Olá! Vi meu relatório de campanha, vamos continuar crescendo?");
+
+  const historico = await prisma.report.findMany({
+    where: { clienteId: report.clienteId },
+    orderBy: { periodoInicio: "asc" },
+  });
+
+  const totalInvestido = historico.reduce((acc, r) => acc + r.investimento, 0);
+  const totalLeads = historico.reduce((acc, r) => acc + r.leads, 0);
+  const totalCampanhas = historico.length;
+
+  const indiceAtual = historico.findIndex((r) => r.id === report.id);
+  const anterior = indiceAtual > 0 ? historico[indiceAtual - 1] : null;
+  const custoLeadAnterior = anterior ? cpl(anterior.investimento, anterior.leads) : 0;
+
+  const periodos = historico.map((r) => ({
+    label: formatMonthShort(r.periodoInicio),
+    value: r.leads,
+    isCurrent: r.id === report.id,
+  }));
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-brand-black pb-24">
@@ -62,27 +95,82 @@ export default async function ReportPage({
         </Reveal>
 
         <Reveal delay={0.1}>
-          <div className="glass-panel flex flex-col items-center gap-2 rounded-3xl p-10 text-center shadow-2xl">
+          <div className="glass-panel flex flex-col items-center gap-3 rounded-3xl p-10 text-center shadow-2xl">
             <p className="font-subheading text-xs font-semibold uppercase tracking-[0.2em] text-white/45">
               Leads gerados no período
             </p>
             <p className="font-heading text-6xl font-semibold text-gradient-silver sm:text-7xl">
               <AnimatedCounter value={report.leads} />
             </p>
-            <p className="mt-2 font-sans text-sm text-white/50">
+            <p className="font-sans text-sm text-white/50">
               Custo por lead: <span className="font-medium text-white">{formatCurrency(custoLead)}</span>
             </p>
+            {anterior ? (
+              <DeltaBadge
+                label="Leads"
+                pct={percentChange(report.leads, anterior.leads)}
+                goodDirection="up"
+              />
+            ) : null}
           </div>
         </Reveal>
 
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+        {totalCampanhas > 1 ? (
+          <Reveal delay={0.12}>
+            <div className="flex flex-col items-center gap-6 rounded-2xl border border-white/[0.08] bg-white/[0.02] px-6 py-5 text-center sm:flex-row sm:justify-center sm:gap-10">
+              <p className="font-subheading text-[11px] font-semibold uppercase tracking-[0.18em] text-white/40">
+                Desde o início com a Tráfego Real
+              </p>
+              <div className="flex items-center gap-8">
+                <div>
+                  <p className="font-heading text-xl font-semibold text-white">{formatCurrency(totalInvestido)}</p>
+                  <p className="font-sans text-xs text-white/45">Investido</p>
+                </div>
+                <div>
+                  <p className="font-heading text-xl font-semibold text-white">{formatNumber(totalLeads)}</p>
+                  <p className="font-sans text-xs text-white/45">Leads gerados</p>
+                </div>
+                <div>
+                  <p className="font-heading text-xl font-semibold text-white">{formatNumber(totalCampanhas)}</p>
+                  <p className="font-sans text-xs text-white/45">Relatórios</p>
+                </div>
+              </div>
+            </div>
+          </Reveal>
+        ) : null}
+
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
           <StatCard icon={Wallet} label="Investimento" value={report.investimento} prefix="R$ " decimals={2} delay={0} />
-          <StatCard icon={Users} label="Alcance" value={report.alcance} delay={0.05} />
-          <StatCard icon={Eye} label="Impressões" value={report.impressoes} delay={0.1} />
-          <StatCard icon={MousePointerClick} label="Cliques" value={report.cliques} delay={0.15} />
-          <StatCard icon={Percent} label="CTR" value={taxaCtr} suffix="%" decimals={2} delay={0.2} />
-          <StatCard icon={Target} label="Mensagens / Leads" value={report.leads} delay={0.25} />
+          <StatCard icon={Users} label="Alcance" value={report.alcance} delay={0.04} />
+          <StatCard icon={Eye} label="Impressões" value={report.impressoes} delay={0.08} />
+          <StatCard icon={MousePointerClick} label="Cliques" value={report.cliques} delay={0.12} />
+          <StatCard icon={Percent} label="CTR" value={taxaCtr} suffix="%" decimals={2} delay={0.16} />
+          <StatCard icon={Target} label="Mensagens / Leads" value={report.leads} delay={0.2} />
+          <StatCard icon={Coins} label="Custo por clique" value={custoClique} prefix="R$ " decimals={2} delay={0.24} />
+          <StatCard icon={TrendingUp} label="Custo por mil impressões" value={custoMil} prefix="R$ " decimals={2} delay={0.28} />
         </div>
+
+        {anterior ? (
+          <Reveal delay={0.15}>
+            <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3 rounded-2xl border border-white/[0.08] bg-white/[0.02] px-6 py-5">
+              <DeltaBadge
+                label="Investimento"
+                pct={percentChange(report.investimento, anterior.investimento)}
+                goodDirection="neutral"
+              />
+              <DeltaBadge
+                label="Custo por lead"
+                pct={percentChange(custoLead, custoLeadAnterior)}
+                goodDirection="down"
+              />
+              <DeltaBadge
+                label="CTR"
+                pct={percentChange(taxaCtr, ctr(anterior.cliques, anterior.impressoes))}
+                goodDirection="up"
+              />
+            </div>
+          </Reveal>
+        ) : null}
 
         <Reveal delay={0.1}>
           <div className="rounded-2xl border border-white/[0.08] bg-gradient-to-b from-white/[0.04] to-transparent p-6">
@@ -102,6 +190,20 @@ export default async function ReportPage({
             </div>
           </div>
         </Reveal>
+
+        {totalCampanhas > 1 ? (
+          <Reveal delay={0.12}>
+            <div className="rounded-2xl border border-white/[0.08] bg-gradient-to-b from-white/[0.04] to-transparent p-6">
+              <h2 className="font-heading text-lg font-semibold text-white">Evolução de leads</h2>
+              <p className="mt-1 font-sans text-sm text-white/50">
+                Leads gerados em cada período de campanha.
+              </p>
+              <div className="mt-6">
+                <EvolutionBars periods={periodos} />
+              </div>
+            </div>
+          </Reveal>
+        ) : null}
 
         {report.observacoes ? (
           <Reveal delay={0.15}>
