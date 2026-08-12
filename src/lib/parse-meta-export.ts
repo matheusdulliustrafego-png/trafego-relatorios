@@ -8,6 +8,7 @@ export interface ParsedMetaExport {
   impressoes: number;
   cliques: number;
   leads: number;
+  visualizacoesPagina: number;
   periodoInicio: string;
   periodoFim: string;
   observacoesSugeridas: string;
@@ -203,11 +204,20 @@ export function parseMetaExport(
     return total;
   }
 
+  function sumOptionalField(...candidates: string[]): number {
+    let total = 0;
+    for (const row of rows) total += toNumberFlexible(pickField(row, ...candidates));
+    return total;
+  }
+
   const investimento = sumField("Valor usado (BRL)", "Valor usado (BRL)");
   const alcance = Math.round(sumField("Alcance", "Alcance"));
   const impressoes = Math.round(sumField("Impressões", "Impressões"));
   const cliques = Math.round(sumField("Cliques no link", "Cliques no link"));
   const leads = Math.round(sumField("Resultados", "Resultados"));
+  const visualizacoesPagina = Math.round(
+    sumOptionalField("Visualizações da página de destino")
+  );
 
   const campanhas = new Set<string>();
   for (const row of rows) {
@@ -251,6 +261,7 @@ export function parseMetaExport(
     impressoes,
     cliques,
     leads,
+    visualizacoesPagina,
     periodoInicio,
     periodoFim,
     observacoesSugeridas,

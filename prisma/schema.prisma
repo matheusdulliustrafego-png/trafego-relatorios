@@ -15,17 +15,18 @@ model Cliente {
 }
 
 model Report {
-  id            String   @id @default(cuid())
-  cliente       Cliente  @relation(fields: [clienteId], references: [id])
-  clienteId     String
-  campanha      String   @default("")
-  periodoInicio DateTime
-  periodoFim    DateTime
-  investimento  Float
-  alcance       Int
-  impressoes    Int
-  cliques       Int
-  leads         Int
-  observacoes   String   @default("")
-  createdAt     DateTime @default(now())
+  id                  String   @id @default(cuid())
+  cliente             Cliente  @relation(fields: [clienteId], references: [id])
+  clienteId           String
+  campanha            String   @default("")
+  periodoInicio       DateTime
+  periodoFim          DateTime
+  investimento        Float
+  alcance             Int
+  impressoes          Int
+  cliques             Int
+  leads               Int
+  visualizacoesPagina Int      @default(0)
+  observacoes         String   @default("")
+  createdAt           DateTime @default(now())
 }

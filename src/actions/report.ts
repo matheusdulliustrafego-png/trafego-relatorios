@@ -38,6 +38,7 @@ export async function createReport(formData: FormData) {
       impressoes: Math.round(toNumber(formData.get("impressoes"))),
       cliques: Math.round(toNumber(formData.get("cliques"))),
       leads: Math.round(toNumber(formData.get("leads"))),
+      visualizacoesPagina: Math.round(toNumber(formData.get("visualizacoesPagina"))),
       observacoes,
     },
   });

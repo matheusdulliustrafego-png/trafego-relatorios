@@ -18,6 +18,16 @@ export function cpm(investimento: number, impressoes: number): number {
   return (investimento / impressoes) * 1000;
 }
 
+export function frequencia(impressoes: number, alcance: number): number {
+  if (!alcance) return 0;
+  return impressoes / alcance;
+}
+
+export function cplp(investimento: number, visualizacoesPagina: number): number {
+  if (!visualizacoesPagina) return 0;
+  return investimento / visualizacoesPagina;
+}
+
 export function percentChange(atual: number, anterior: number): number {
   if (!anterior) return 0;
   return ((atual - anterior) / anterior) * 100;

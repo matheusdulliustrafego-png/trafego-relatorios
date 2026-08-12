@@ -12,6 +12,7 @@ export interface ReportFieldsDefaultValues {
   alcance?: number | string;
   impressoes?: number | string;
   cliques?: number | string;
+  visualizacoesPagina?: number | string;
   observacoes?: string;
 }
 
@@ -97,7 +98,7 @@ export function ReportFields({
           />
         </div>
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="leads">Mensagens / Leads gerados</Label>
+          <Label htmlFor="leads">Resultados (leads, conversas, compras...)</Label>
           <Input
             id="leads"
             name="leads"
@@ -130,7 +131,7 @@ export function ReportFields({
           />
         </div>
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="cliques">Cliques</Label>
+          <Label htmlFor="cliques">Cliques no link</Label>
           <Input
             id="cliques"
             name="cliques"
@@ -139,6 +140,21 @@ export function ReportFields({
             className="h-11"
             defaultValue={defaultValues.cliques ?? 0}
           />
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <Label htmlFor="visualizacoesPagina">Visualizações da página de destino</Label>
+          <Input
+            id="visualizacoesPagina"
+            name="visualizacoesPagina"
+            type="number"
+            min="0"
+            className="h-11"
+            defaultValue={defaultValues.visualizacoesPagina ?? 0}
+          />
+          <p className="font-sans text-xs text-white/35">
+            Só preencha se a campanha tinha objetivo de tráfego/site. Deixe 0 se não tiver essa
+            métrica.
+          </p>
         </div>
       </div>
 

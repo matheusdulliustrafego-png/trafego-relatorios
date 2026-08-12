@@ -72,6 +72,7 @@ export function ImportForm({ clientes }: { clientes: { nome: string }[] }) {
                 alcance: state.data.alcance,
                 impressoes: state.data.impressoes,
                 cliques: state.data.cliques,
+                visualizacoesPagina: state.data.visualizacoesPagina,
                 observacoes: state.data.observacoesSugeridas,
               }}
             />

@@ -1,11 +1,26 @@
 import { notFound } from "next/navigation";
-import { Wallet, Users, Eye, MousePointerClick, Percent, Target, Coins, TrendingUp } from "lucide-react";
+import {
+  Wallet,
+  Users,
+  Eye,
+  MousePointerClick,
+  Percent,
+  Target,
+  Coins,
+  TrendingUp,
+  Repeat,
+  CircleDollarSign,
+  FileText,
+  Banknote,
+} from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import {
   ctr,
   cpl,
   cpc,
   cpm,
+  frequencia,
+  cplp,
   percentChange,
   formatCurrency,
   formatDate,
@@ -40,6 +55,9 @@ export default async function ReportPage({
   const custoLead = cpl(report.investimento, report.leads);
   const custoClique = cpc(report.investimento, report.cliques);
   const custoMil = cpm(report.investimento, report.impressoes);
+  const freq = frequencia(report.impressoes, report.alcance);
+  const custoLpv = cplp(report.investimento, report.visualizacoesPagina);
+  const temLpv = report.visualizacoesPagina > 0;
   const whatsappLink = "https://wa.me/5551993133997?text=" + encodeURIComponent("Olá! Vi meu relatório de campanha, vamos continuar crescendo?");
 
   const historico = await prisma.report.findMany({
@@ -150,14 +168,34 @@ export default async function ReportPage({
         ) : null}
 
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-          <StatCard icon={Wallet} label="Investimento" value={report.investimento} prefix="R$ " decimals={2} delay={0} />
-          <StatCard icon={Users} label="Alcance" value={report.alcance} delay={0.04} />
-          <StatCard icon={Eye} label="Impressões" value={report.impressoes} delay={0.08} />
-          <StatCard icon={MousePointerClick} label="Cliques" value={report.cliques} delay={0.12} />
-          <StatCard icon={Percent} label="CTR" value={taxaCtr} suffix="%" decimals={2} delay={0.16} />
-          <StatCard icon={Target} label="Mensagens / Leads" value={report.leads} delay={0.2} />
-          <StatCard icon={Coins} label="Custo por clique" value={custoClique} prefix="R$ " decimals={2} delay={0.24} />
-          <StatCard icon={TrendingUp} label="Custo por mil impressões" value={custoMil} prefix="R$ " decimals={2} delay={0.28} />
+          <StatCard icon={Wallet} label="Valor investido" value={report.investimento} prefix="R$ " decimals={2} delay={0} />
+          <StatCard icon={Target} label="Resultados" value={report.leads} delay={0.03} />
+          <StatCard icon={CircleDollarSign} label="Custo por resultado" value={custoLead} prefix="R$ " decimals={2} delay={0.06} />
+          <StatCard icon={Users} label="Alcance" value={report.alcance} delay={0.09} />
+          <StatCard icon={Eye} label="Impressões" value={report.impressoes} delay={0.12} />
+          <StatCard icon={Repeat} label="Frequência" value={freq} decimals={2} delay={0.15} />
+          <StatCard icon={TrendingUp} label="CPM" value={custoMil} prefix="R$ " decimals={2} delay={0.18} />
+          <StatCard icon={MousePointerClick} label="Cliques no link" value={report.cliques} delay={0.21} />
+          <StatCard icon={Percent} label="CTR" value={taxaCtr} suffix="%" decimals={2} delay={0.24} />
+          <StatCard icon={Coins} label="CPC" value={custoClique} prefix="R$ " decimals={2} delay={0.27} />
+          {temLpv ? (
+            <>
+              <StatCard
+                icon={FileText}
+                label="Visualizações da página"
+                value={report.visualizacoesPagina}
+                delay={0.3}
+              />
+              <StatCard
+                icon={Banknote}
+                label="Custo por visualização da página"
+                value={custoLpv}
+                prefix="R$ "
+                decimals={2}
+                delay={0.33}
+              />
+            </>
+          ) : null}
         </div>
 
         {anterior ? (
@@ -193,6 +231,9 @@ export default async function ReportPage({
                 steps={[
                   { label: "Alcance", value: report.alcance },
                   { label: "Cliques", value: report.cliques },
+                  ...(temLpv
+                    ? [{ label: "Visualizações da página", value: report.visualizacoesPagina }]
+                    : []),
                   { label: "Leads", value: report.leads },
                 ]}
               />
